@@ -1,0 +1,105 @@
+# ==============================================================================
+# clang-format configuration
+#
+# Based on LLVM style with a few customizations.
+# Suitable for modern C23 projects.
+# ==============================================================================
+
+Language: Cpp
+
+BasedOnStyle: LLVM
+
+# ------------------------------------------------------------------------------
+# General
+# ------------------------------------------------------------------------------
+
+Standard: Latest
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+ContinuationIndentWidth: 4
+
+# ------------------------------------------------------------------------------
+# Braces
+# ------------------------------------------------------------------------------
+
+BreakBeforeBraces: Attach
+
+BraceWrapping:
+  AfterFunction: false
+  AfterControlStatement: false
+  AfterStruct: false
+  AfterEnum: false
+  AfterUnion: false
+  BeforeElse: false
+  BeforeCatch: false
+
+# ------------------------------------------------------------------------------
+# Alignment
+# ------------------------------------------------------------------------------
+
+AlignAfterOpenBracket: Align
+AlignOperands: Align
+AlignTrailingComments: true
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+
+# ------------------------------------------------------------------------------
+# Functions
+# ------------------------------------------------------------------------------
+
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakAfterReturnType: None
+
+# ------------------------------------------------------------------------------
+# Control Statements
+# ------------------------------------------------------------------------------
+
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+
+# ------------------------------------------------------------------------------
+# Spaces
+# ------------------------------------------------------------------------------
+
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceInEmptyParentheses: false
+
+# ------------------------------------------------------------------------------
+# Pointer Style
+# ------------------------------------------------------------------------------
+
+PointerAlignment: Right
+
+# Produces:
+#
+#     int *ptr;
+#     char *buffer;
+#
+
+# ------------------------------------------------------------------------------
+# Includes
+# ------------------------------------------------------------------------------
+
+SortIncludes: true
+IncludeBlocks: Preserve
+
+# ------------------------------------------------------------------------------
+# Empty Lines
+# ------------------------------------------------------------------------------
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# ------------------------------------------------------------------------------
+# Miscellaneous
+# ------------------------------------------------------------------------------
+
+IndentCaseLabels: true
+IndentGotoLabels: false
+ReflowComments: true
+SortUsingDeclarations: true

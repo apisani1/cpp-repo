@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug MyProject",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/debug/MyProject",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "CMake: Build Debug",
+            "env": {
+                "ASAN_OPTIONS": "abort_on_error=1",
+                "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+            }
+        }
+    ]
+}

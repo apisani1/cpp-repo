@@ -1,0 +1,107 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+            "PATH": "/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:/opt/homebrew/opt/llvm/bin"
+        }
+    },
+    "tasks": [
+        {
+            "label": "CMake: Configure Debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "debug"
+            ],
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "CMake: Build Debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "debug"
+            ],
+            "dependsOn": "CMake: Configure Debug",
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "CTest: Debug",
+            "type": "shell",
+            "command": "ctest",
+            "args": [
+                "--preset",
+                "debug"
+            ],
+            "dependsOn": "CMake: Build Debug",
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Run (without debugger)",
+            "type": "shell",
+            "command": "${workspaceFolder}/build/debug/MyProject",
+            "dependsOn": "CMake: Build Debug",
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
+            "label": "Quality: Check Debug",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "qa"
+            ],
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Quality: Coverage",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "coverage"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Format: Apply",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "format"
+            ],
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Format: Check",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "format-check"
+            ],
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Build: Clean All",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "clean-all"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}

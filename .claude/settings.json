@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make debug)",
+      "Bash(make qa)",
+      "Bash(make run)",
+      "Bash(git init *)",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}

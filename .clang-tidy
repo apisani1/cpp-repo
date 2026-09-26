@@ -1,0 +1,55 @@
+# Note: everything under `Checks:` is a folded YAML scalar, so `#` there is
+# literal text, not a comment. Keep explanations outside the block.
+#
+# clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling is
+# disabled because it recommends the C11 Annex K *_s functions, which neither
+# macOS nor glibc implement.
+#
+# misc-include-cleaner is disabled because it demands a direct include of the
+# header defining each symbol. Unity's macros live in unity_internals.h, which
+# must not be included directly - unity.h is the public umbrella header. The
+# check cannot see through that pattern.
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  misc-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  cert-*,
+
+  -bugprone-easily-swappable-parameters,
+  -misc-no-recursion,
+  -misc-include-cleaner,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-function-size,
+  -readability-else-after-return
+
+# Warnings are promoted to errors by the `tidy` build target
+# (--warnings-as-errors=*), not here, so that clangd keeps showing them as
+# warnings in the editor instead of errors.
+WarningsAsErrors: ''
+
+HeaderFilterRegex: '(^|.*/)(src|include|tests)/.*'
+
+CheckOptions:
+
+  - key: readability-function-cognitive-complexity.Threshold
+    value: "25"
+
+  - key: readability-function-size.LineThreshold
+    value: "300"
+
+  - key: readability-function-size.StatementThreshold
+    value: "200"
+
+  - key: readability-function-size.BranchThreshold
+    value: "30"
+
+  - key: readability-function-size.ParameterThreshold
+    value: "6"
+
+FormatStyle: file

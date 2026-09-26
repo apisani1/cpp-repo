@@ -1,0 +1,135 @@
+{
+    "version": 6,
+
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+
+            "generator": "Ninja",
+
+            "binaryDir": "${sourceDir}/build/${presetName}",
+
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_OSX_SYSROOT": "macosx",
+
+                "ENABLE_WARNINGS_AS_ERRORS": "ON",
+                "ENABLE_SANITIZERS": "ON",
+                "ENABLE_COVERAGE": "OFF"
+            }
+        },
+
+        {
+            "name": "debug",
+            "displayName": "Debug",
+            "description": "Debug build with sanitizers",
+
+            "inherits": "base",
+
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+
+        {
+            "name": "release",
+            "displayName": "Release",
+            "description": "Optimized release build",
+
+            "inherits": "base",
+
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "ENABLE_SANITIZERS": "OFF"
+            }
+        },
+
+        {
+            "name": "relwithdebinfo",
+            "displayName": "Release with Debug Info",
+            "description": "Optimized build with debug symbols",
+
+            "inherits": "base",
+
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "ENABLE_SANITIZERS": "OFF"
+            }
+        },
+
+        {
+            "name": "coverage",
+            "displayName": "Coverage",
+            "description": "Debug build instrumented for coverage (sanitizers off)",
+
+            "inherits": "base",
+
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ENABLE_SANITIZERS": "OFF",
+                "ENABLE_COVERAGE": "ON"
+            }
+        }
+    ],
+
+    "buildPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        },
+        {
+            "name": "relwithdebinfo",
+            "configurePreset": "relwithdebinfo"
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage"
+        }
+    ],
+
+    "testPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug",
+
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "release",
+            "configurePreset": "release",
+
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "relwithdebinfo",
+            "configurePreset": "relwithdebinfo",
+
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage",
+
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}

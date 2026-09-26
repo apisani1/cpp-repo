@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qa:
+    name: QA (${{ matrix.config }})
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [debug, release]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: brew install ninja cppcheck llvm
+
+      - name: Add LLVM to PATH
+        run: echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
+
+      - name: Run quality gate
+        run: make qa CONFIG=${{ matrix.config }}
+
+  coverage:
+    name: Coverage
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: brew install ninja
+
+      - name: Generate coverage report
+        run: make coverage
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: build/coverage/coverage-report/html
+          if-no-files-found: error
+
+  docs:
+    name: Docs
+    # Must stay on macOS: `make docs` configures CMake first, and the presets
+    # pin /usr/bin/clang and CMAKE_OSX_SYSROOT.
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: brew install ninja doxygen
+
+      - name: Build documentation
+        run: make docs
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/debug/docs/html
+
+  deploy-docs:
+    name: Deploy docs
+    if: github.ref == 'refs/heads/main'
+    needs: docs
+    # Only deploys a prebuilt artifact, so it has no macOS dependency.
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Separate from the workflow-level group, whose cancel-in-progress would
+    # otherwise be able to cancel a deployment mid-flight.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
