@@ -2,7 +2,7 @@
 # clang-format configuration
 #
 # Based on LLVM style with a few customizations.
-# Suitable for modern C23 projects.
+# Suitable for modern C++23 and C23 projects.
 # ==============================================================================
 
 Language: Cpp
@@ -19,6 +19,11 @@ TabWidth: 4
 UseTab: Never
 ColumnLimit: 100
 ContinuationIndentWidth: 4
+
+# LLVM's default is -2, which assumes LLVM's own IndentWidth of 2 and would put
+# `public:` at a two-space half-indent under the 4-space indent used here. -4
+# keeps access specifiers flush with `class`.
+AccessModifierOffset: -4
 
 # ------------------------------------------------------------------------------
 # Braces

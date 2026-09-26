@@ -1,6 +1,6 @@
-# C23 Project Template
+# C++23 / C23 Project Template
 
-A C23 template built with CMake presets, Ninja, CTest, clang-format, clang-tidy,
+A C++23 template with C23 support built with CMake presets, Ninja, CTest, clang-format, clang-tidy,
 cppcheck and llvm-cov. Warnings, sanitizers and coverage instrumentation apply
 uniformly to the library, the executable and every test.
 
@@ -14,7 +14,7 @@ uniformly to the library, the executable and every test.
 - cppcheck (required for `make cppcheck` and `make qa`)
 - doxygen (required for `make docs`): `brew install doxygen`
 
-macOS-only by design: the presets pin `/usr/bin/clang` and `CMAKE_OSX_SYSROOT`,
+macOS-only by design: the presets pin `/usr/bin/clang`, `/usr/bin/clang++` and `CMAKE_OSX_SYSROOT`,
 and tool discovery prefers Xcode's toolchain via `xcrun`. If Xcode lacks a tool
 such as clang-tidy, install it separately (for example, Homebrew LLVM). Put
 machine-specific overrides in `CMakeUserPresets.json`, which is gitignored.
@@ -34,22 +34,35 @@ your own code.
 
 ```
 include/          Public headers for the core library
-src/              Library sources, plus main.c (a thin wrapper only)
-tests/            One test_*.c per test executable (Unity)
+src/              Library sources, plus main.cpp (a thin wrapper only)
+tests/            One test_*.c / test_*.cpp per test executable (Unity)
 cmake/            CMake helper scripts
 scripts/          init-project.sh
 ```
 
 Application logic belongs in the core library (`<Project>_core`), which both the
-executable and the tests link. Keeping `main.c` thin is what makes the code
+executable and the tests link. Keeping `main.cpp` thin is what makes the code
 testable.
+
+## Language support
+
+CMake enables C++23 and C23 with language extensions disabled. The sample
+`src/main.cpp` uses the C library in `src/greeting.c`; `greeting.h` uses
+`extern "C"` guards so both languages can include it. C and C++ tests exercise
+that shared interface. C++-only headers can use `.hpp` and normal C++ linkage.
+
+Add production `.c`, `.cc`, `.cpp` or `.cxx` files explicitly to the core target
+in `CMakeLists.txt`. Test discovery and quality tools support all four extensions;
+formatting also covers `.h`, `.hh`, `.hpp`, `.hxx`, `.inl` and `.tpp` headers.
+Test filenames must have unique stems, such as `test_greeting.c` and
+`test_greeting_cpp.cpp`. C-only prototype warnings are restricted to C sources.
 
 ## Adding a test
 
 Tests use [Unity](https://github.com/ThrowTheSwitch/Unity), fetched automatically at
-configure time — a clean build needs network access. Create `tests/test_<thing>.c`:
+configure time — a clean build needs network access. Create `tests/test_<thing>.cpp` (or `.c` for a C test):
 
-```c
+```cpp
 #include "greeting.h"
 
 #include "unity.h"
@@ -58,11 +71,13 @@ configure time — a clean build needs network access. Create `tests/test_<thing
 void setUp(void) {}
 void tearDown(void) {}
 
-static void it_greets(void) {
+namespace {
+void it_greets() {
     TEST_ASSERT_EQUAL_STRING("Hello, world!", greeting_text());
 }
+} // namespace
 
-int main(void) {
+int main() {
     UNITY_BEGIN();
     RUN_TEST(it_greets);
     return UNITY_END();

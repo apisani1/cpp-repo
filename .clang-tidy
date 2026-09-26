@@ -9,11 +9,14 @@
 # header defining each symbol. Unity's macros live in unity_internals.h, which
 # must not be included directly - unity.h is the public umbrella header. The
 # check cannot see through that pattern.
+# Shared C headers are also analysed from C++ translation units. Trailing
+# return types would make those headers invalid C.
 Checks: >
   -*,
   bugprone-*,
   clang-analyzer-*,
   misc-*,
+  modernize-*,
   performance-*,
   portability-*,
   readability-*,
@@ -21,6 +24,7 @@ Checks: >
 
   -bugprone-easily-swappable-parameters,
   -misc-no-recursion,
+  -modernize-use-trailing-return-type,
   -misc-include-cleaner,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   -readability-identifier-length,

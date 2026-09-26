@@ -18,6 +18,7 @@
 
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
                 "CMAKE_OSX_SYSROOT": "macosx",
 
                 "ENABLE_WARNINGS_AS_ERRORS": "ON",

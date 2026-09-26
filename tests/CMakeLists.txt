@@ -1,7 +1,7 @@
 # ==============================================================================
 # Tests
 #
-# Every tests/test_*.c file becomes its own executable and its own CTest test.
+# Every tests/test_*.{c,cc,cpp,cxx} file becomes its own executable and its own CTest test.
 # Adding a test means adding a file here - no CMake changes required.
 # ==============================================================================
 
@@ -42,7 +42,12 @@ FetchContent_MakeAvailable(unity)
 # Test executables
 # ------------------------------------------------------------------------------
 
-file(GLOB test_sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test_*.c")
+file(GLOB test_sources CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_*.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_*.cxx"
+)
 
 foreach(test_source IN LISTS test_sources)
 

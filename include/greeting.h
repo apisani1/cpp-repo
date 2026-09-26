@@ -10,6 +10,10 @@
 #ifndef GREETING_H
 #define GREETING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Returns the greeting printed by the application.
  *
@@ -17,5 +21,9 @@
  *         does not own it and must not free or modify it.
  */
 const char *greeting_text(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GREETING_H */

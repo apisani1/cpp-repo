@@ -7,8 +7,8 @@ cmake_minimum_required(VERSION 3.28)
 project(
     MyProject
     VERSION 1.0.0
-    DESCRIPTION "My C Project"
-    LANGUAGES C
+    DESCRIPTION "My C++ Project"
+    LANGUAGES C CXX
 )
 
 # ==============================================================================
@@ -27,6 +27,10 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Generate compile_commands.json (consumed by clangd, clang-tidy and cppcheck)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -42,43 +46,50 @@ add_library(project_warnings INTERFACE)
 add_library(project_sanitizers INTERFACE)
 add_library(project_coverage INTERFACE)
 
-if(CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang|GNU")
+set(project_warning_options
 
+    # General
+    -Wall
+    -Wextra
+    -Wpedantic
+
+    # Type safety
+    -Wconversion
+    -Wsign-conversion
+    -Wshadow
+    -Wundef
+
+    # Floating point
+    -Wdouble-promotion
+
+    # printf / scanf
+    -Wformat=2
+
+    # Const correctness
+    -Wcast-qual
+    -Wwrite-strings
+
+    # Function declarations
+    $<$<COMPILE_LANGUAGE:C>:-Wstrict-prototypes>
+    $<$<COMPILE_LANGUAGE:C>:-Wmissing-prototypes>
+
+    # C++ class safety
+    $<$<COMPILE_LANGUAGE:CXX>:-Wnon-virtual-dtor>
+    $<$<COMPILE_LANGUAGE:CXX>:-Woverloaded-virtual>
+
+    # switch statements
+    -Wimplicit-fallthrough
+
+    $<$<BOOL:${ENABLE_WARNINGS_AS_ERRORS}>:-Werror>
+
+)
+
+# Select each source's compiler independently, including in mixed toolchains.
+foreach(language IN ITEMS C CXX)
     target_compile_options(project_warnings INTERFACE
-
-        # General
-        -Wall
-        -Wextra
-        -Wpedantic
-
-        # Type safety
-        -Wconversion
-        -Wsign-conversion
-        -Wshadow
-        -Wundef
-
-        # Floating point
-        -Wdouble-promotion
-
-        # printf / scanf
-        -Wformat=2
-
-        # Const correctness
-        -Wcast-qual
-        -Wwrite-strings
-
-        # Function declarations
-        -Wstrict-prototypes
-        -Wmissing-prototypes
-
-        # switch statements
-        -Wimplicit-fallthrough
-
-        $<$<BOOL:${ENABLE_WARNINGS_AS_ERRORS}>:-Werror>
-
+        "$<$<COMPILE_LANG_AND_ID:${language},Clang,AppleClang,GNU>:${project_warning_options}>"
     )
-
-endif()
+endforeach()
 
 # ==============================================================================
 # Sanitizers (Debug only)
@@ -148,7 +159,7 @@ target_link_libraries(${PROJECT_NAME}_core
 # ==============================================================================
 
 add_executable(${PROJECT_NAME}
-    src/main.c
+    src/main.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -258,18 +269,22 @@ foreach(tool_variable IN ITEMS
     endif()
 endforeach()
 
-file(GLOB_RECURSE PROJECT_C_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c"
-)
-
-file(GLOB_RECURSE PROJECT_FORMAT_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h"
-)
+# Discover both languages for tooling; production targets list sources explicitly.
+set(PROJECT_SOURCES "")
+set(PROJECT_FORMAT_SOURCES "")
+foreach(source_dir IN ITEMS src include tests)
+    foreach(extension IN ITEMS c cc cpp cxx)
+        file(GLOB_RECURSE sources CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/${source_dir}/*.${extension}")
+        list(APPEND PROJECT_SOURCES ${sources})
+        list(APPEND PROJECT_FORMAT_SOURCES ${sources})
+    endforeach()
+    foreach(extension IN ITEMS h hh hpp hxx inl tpp)
+        file(GLOB_RECURSE headers CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/${source_dir}/*.${extension}")
+        list(APPEND PROJECT_FORMAT_SOURCES ${headers})
+    endforeach()
+endforeach()
 
 # ==============================================================================
 # format
@@ -339,7 +354,7 @@ if(CLANG_TIDY_EXE)
             --warnings-as-errors=*
             -p
             ${CMAKE_BINARY_DIR}
-            ${PROJECT_C_SOURCES}
+            ${PROJECT_SOURCES}
 
         WORKING_DIRECTORY
             ${CMAKE_SOURCE_DIR}
@@ -462,10 +477,8 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_PROJECT_BRIEF ${PROJECT_DESCRIPTION})
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/docs)
 
-    # Stops the output reading like C++: renames "Classes" to "Data Structures"
-    # and drops class-oriented sections.
-    set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-    set(DOXYGEN_TYPEDEF_HIDES_STRUCT YES)
+    # Preserve class-oriented documentation for C++ and mixed-language projects.
+    set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
 
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_LATEX NO)

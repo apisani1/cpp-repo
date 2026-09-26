@@ -55,7 +55,7 @@ jobs:
   docs:
     name: Docs
     # Must stay on macOS: `make docs` configures CMake first, and the presets
-    # pin /usr/bin/clang and CMAKE_OSX_SYSROOT.
+    # pin /usr/bin/clang, /usr/bin/clang++ and CMAKE_OSX_SYSROOT.
     runs-on: macos-latest
 
     steps:
