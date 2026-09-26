@@ -9,8 +9,20 @@
 # header defining each symbol. Unity's macros live in unity_internals.h, which
 # must not be included directly - unity.h is the public umbrella header. The
 # check cannot see through that pattern.
-# Shared C headers are also analysed from C++ translation units. Trailing
-# return types would make those headers invalid C.
+#
+# Two modernize checks are disabled because this project compiles C as well as
+# C++, and C sources - plus the extern "C" headers pulled into every C++
+# translation unit - must stay valid C:
+#
+#   modernize-use-trailing-return-type would rewrite declarations into C++-only
+#   syntax.
+#
+#   modernize-redundant-void-arg would strip the `(void)` from C parameter
+#   lists. That is only safe at C23, where `f()` and `f(void)` agree; at C17 and
+#   below `-Wstrict-prototypes` rejects `f()` outright, so the check and the
+#   project's own warning flags would demand opposite things. Note this check
+#   ignores C sources up to clang-tidy 22 and flags them from 23 onwards, so
+#   leaving it on makes the gate depend on the installed LLVM version.
 Checks: >
   -*,
   bugprone-*,
@@ -25,6 +37,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -misc-no-recursion,
   -modernize-use-trailing-return-type,
+  -modernize-redundant-void-arg,
   -misc-include-cleaner,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   -readability-identifier-length,

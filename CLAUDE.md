@@ -73,10 +73,15 @@ and both a C and a C++ test exercise the same header.
   block, which is what gives the definitions C linkage; defining them first, or
   inside a namespace, fails to compile with "different language linkage". Test
   case functions themselves may live in an anonymous namespace.
-- **A C++-only clang-tidy check will also fire on `extern "C"` headers**, because
-  those headers get analysed as part of every C++ translation unit that includes
-  them. This is why `modernize-use-trailing-return-type` cannot be enabled: it
-  would demand C++ syntax in headers that must stay valid C.
+- **`modernize-*` is enabled, but two of its checks are not**, because C sources
+  and the `extern "C"` headers pulled into every C++ translation unit must stay
+  valid C: `modernize-use-trailing-return-type` would rewrite declarations into
+  C++-only syntax, and `modernize-redundant-void-arg` would strip `(void)` from C
+  parameter lists, which `-Wstrict-prototypes` rejects below C23. Before adding a
+  C++-oriented check, run `make tidy` over the C sources too, not just the C++
+  ones — and note that clang-tidy's C handling changes between releases, so a
+  check that is quiet on your LLVM may fail CI on a newer one. CI installs
+  unpinned Homebrew `llvm`.
 
 Tooling extension coverage, all set in `CMakeLists.txt`:
 
