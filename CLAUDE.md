@@ -80,8 +80,8 @@ and both a C and a C++ test exercise the same header.
   parameter lists, which `-Wstrict-prototypes` rejects below C23. Before adding a
   C++-oriented check, run `make tidy` over the C sources too, not just the C++
   ones — and note that clang-tidy's C handling changes between releases, so a
-  check that is quiet on your LLVM may fail CI on a newer one. CI installs
-  unpinned Homebrew `llvm`.
+  check that is quiet on your LLVM may fail CI on a newer one. CI pins Homebrew
+  `llvm@22`; update it deliberately after verifying the quality gate locally.
 
 Tooling extension coverage, all set in `CMakeLists.txt`:
 
